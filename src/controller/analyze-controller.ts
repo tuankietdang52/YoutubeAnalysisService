@@ -8,6 +8,7 @@ import { transcriptAudio } from "../service/elevenlabs-service";
 import { SpeechToTextConvertResponse } from "@elevenlabs/elevenlabs-js/api";
 import { TranscriptModel } from "../model/transcription";
 import mongoose from "mongoose";
+import { uploadImage } from "../service/cloudinary-service";
 
 const openYoutubeTask = async (url: string) => {
     if (!ytdl.validateURL(url)) return Result.fail({ message: "Invalid youtube video url", code: 400});
@@ -19,14 +20,23 @@ const verifyYoutubeVideoPlaybackTask = async (curPage: Page) => {
 }
 
 const screenshotTask = async (curPage: Page) => {
+    const title = await curPage.title();
+    const path = `${process.env.SCREENSHOT_PATH}${title}Screenshot`;
+
     await delay(1000);
     await curPage.screenshot({
-        path: `${process.env.SCREENSHOT_PATH}thumbnailScreenshot.png`,
+        path: `${path}.png`,
     });
+
+    console.log("Screenshot success")
+    return await uploadImage(`${path}.png`);
 }
 
-const saveTranscript = async (transcript: SpeechToTextConvertResponse) => {
-    const transcriptModel = new TranscriptModel(transcript);
+const saveTranscript = async (transcript: SpeechToTextConvertResponse, screenshot: string) => {
+    const transcriptModel = new TranscriptModel({
+        ...transcript,
+        screenshot: screenshot
+    });
 
     console.log(transcriptModel);
 
@@ -51,8 +61,10 @@ export const analyzing = async (req: Request, res: Response) => {
     if (!verifyResult.success()) return sendResult(verifyResult, res);
     console.log(verifyResult.message);
 
-    await screenshotTask(page);
-    console.log("Screenshot success")
+    let screenshotResult = await screenshotTask(page);
+    if (!screenshotResult.success()) return sendResult(screenshotResult, res);
+
+    console.log("Upload Image Successfully")
 
     let downloadResult = await downloadAudio(url);
     if (!downloadResult.success()) return sendResult(downloadResult, res);
@@ -69,7 +81,7 @@ export const analyzing = async (req: Request, res: Response) => {
     console.log("Transcript success");
     let transcript = transcriptionResult.result as SpeechToTextConvertResponse;
 
-    saveTranscript(transcript);
+    saveTranscript(transcript, screenshotResult.result as string);
 
     return res.sendStatus(200);
 }

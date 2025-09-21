@@ -6,7 +6,8 @@ export const transcriptSchema = new Schema({
     language_probability: Number,
     text: String,
     words: [transcriptWordSchema],
-    transcriptionId: { type: String, required: true }
+    transcriptionId: { type: String, required: true },
+    screenshot: String
 });
 
 export const TranscriptModel = mongoose.model('transcripts', transcriptSchema);
