@@ -1,23 +1,43 @@
+import { Response } from "express";
+
+interface ResultProperties<T> {
+    code?: number;
+    result?: T | null;
+    message?: string;
+}
+
+export enum ResponseMessageType {
+    NORMAL,
+    JSON
+}
+
 export default class Result<T> {
     #isSuccess: boolean = false;
-    result: T;
-    message: string
+    code: number = 0;
+    result: T | null = null;
+    message: string = "";
 
-    constructor(isSuccess: boolean, result: T, message: string) {
+    constructor(isSuccess: boolean, properties: ResultProperties<T | null>) {
         this.#isSuccess = isSuccess;
-        this.result = result;
-        this.message = message;
+        if (properties.message) this.message = properties.message;
+        if (properties.result) this.result = properties.result;
+        if (properties.code) this.code = properties.code;
     }
 
-    static success<T>(result: T, message: string) {
-        return new Result(true, result, message);
+    static success<T>(properties: ResultProperties<T | null>) {
+        return new Result(true, properties);
     }
 
-    static fail<T>(result: T, message: string) {
-        return new Result(false, result, message);
+    static fail<T>(properties: ResultProperties<T | null>) {
+        return new Result(false, properties);
     }
 
-    isSuccess() {
+    success() {
         return this.#isSuccess;
     }
+}
+
+export function sendResult<T>(result: Result<T>, res: Response, sendAs: ResponseMessageType = ResponseMessageType.NORMAL) {
+    return sendAs == ResponseMessageType.NORMAL ? res.status(result.code).send(result.message)
+                                                : res.status(result.code).json(result.message);
 }

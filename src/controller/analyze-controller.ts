@@ -1,32 +1,75 @@
-import ytdl from "ytdl-core";
-import { openYoutubeVideo, verifyYoutubeVideoPlayback } from "../service/youtube-service";
+import ytdl from "@distube/ytdl-core";
+import { downloadAudio, openYoutubeVideo, verifyYoutubeVideoPlayback } from "../service/youtube-service";
 import { delay } from "../utils/time-utils";
-import { Request, RequestHandler, Response } from "express";
-import { Browser } from "puppeteer";
+import { Request, Response } from "express";
+import { Browser, Page } from "puppeteer";
+import Result, { sendResult } from "../utils/result";
+import { transcriptAudio } from "../service/elevenlabs-service";
+import { SpeechToTextConvertResponse } from "@elevenlabs/elevenlabs-js/api";
+import { TranscriptModel } from "../model/transcription";
+import mongoose from "mongoose";
+
+const openYoutubeTask = async (url: string) => {
+    if (!ytdl.validateURL(url)) return Result.fail({ message: "Invalid youtube video url", code: 400});
+    return await openYoutubeVideo(url);
+}
+
+const verifyYoutubeVideoPlaybackTask = async (curPage: Page) => {
+    return await verifyYoutubeVideoPlayback(curPage);
+}
+
+const screenshotTask = async (curPage: Page) => {
+    await delay(1000);
+    await curPage.screenshot({
+        path: `${process.env.SCREENSHOT_PATH}thumbnailScreenshot.png`,
+    });
+}
+
+const saveTranscript = async (transcript: SpeechToTextConvertResponse) => {
+    const transcriptModel = new TranscriptModel(transcript);
+
+    console.log(transcriptModel);
+
+    await transcriptModel.save().then(() => console.log("Save successfully"))
+                                .catch((err) => console.log(err));
+}
 
 export const analyzing = async (req: Request, res: Response) => {
     if (!req.body || !req.body.url) return res.status(400).send("Missing URL");
 
     const url = req.body.url;
-    if (!ytdl.validateURL(url)) return res.status(400).send("Invalid youtube video url");
 
-    let openResult = await openYoutubeVideo(url);
-    if (!openResult.isSuccess()) {
-        return res.status(500).send(openResult.message);
-    }
-
+    let openResult = await openYoutubeTask(url);
+    if (!openResult.success()) return sendResult(openResult, res);
     console.log(openResult.message);
     
     let browser = openResult.result as Browser;
     let pages = await browser.pages();
     let page = pages[0];
 
-    let verifyResult = await verifyYoutubeVideoPlayback(page);
+    let verifyResult = await verifyYoutubeVideoPlaybackTask(page);
+    if (!verifyResult.success()) return sendResult(verifyResult, res);
+    console.log(verifyResult.message);
 
-    await delay(1000);
-    await page.screenshot({
-        path: 'screenshots/thumbnailScreenshot.png',
-    });
-    
-    return verifyResult.isSuccess() ? res.status(200).send(verifyResult.message) : res.status(500).send(verifyResult.message);
+    await screenshotTask(page);
+    console.log("Screenshot success")
+
+    let downloadResult = await downloadAudio(url);
+    if (!downloadResult.success()) return sendResult(downloadResult, res);
+
+    console.log(downloadResult.message);
+    console.log(downloadResult.result);
+
+    let audioPath = downloadResult.result as string;
+    await delay(2000);
+
+    let transcriptionResult = await transcriptAudio(audioPath);
+    if (!transcriptionResult.success()) return sendResult(transcriptionResult, res);
+
+    console.log("Transcript success");
+    let transcript = transcriptionResult.result as SpeechToTextConvertResponse;
+
+    saveTranscript(transcript);
+
+    return res.sendStatus(200);
 }
