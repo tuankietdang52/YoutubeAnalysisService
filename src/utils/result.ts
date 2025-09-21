@@ -20,7 +20,14 @@ export default class Result<T> {
     constructor(isSuccess: boolean, properties: ResultProperties<T | null>) {
         this.#isSuccess = isSuccess;
         if (properties.message) this.message = properties.message;
-        if (properties.result) this.result = properties.result;
+
+        if (typeof properties.result === 'number') {
+            this.result = properties.result;
+        }
+        else if (properties.result) {
+            this.result = properties.result;
+        }
+
         if (properties.code) this.code = properties.code;
     }
 
@@ -38,6 +45,16 @@ export default class Result<T> {
 }
 
 export function sendResult<T>(result: Result<T>, res: Response, sendAs: ResponseMessageType = ResponseMessageType.NORMAL) {
+    const body = {
+        message: result.message,
+        data: result.result
+    }
+    
+    return sendAs == ResponseMessageType.NORMAL ? res.status(result.code).send(body)
+                                                : res.status(result.code).json(body);
+}
+
+export function sendMessageOnlyResult<T>(result: Result<T>, res: Response, sendAs: ResponseMessageType = ResponseMessageType.NORMAL) {
     return sendAs == ResponseMessageType.NORMAL ? res.status(result.code).send(result.message)
                                                 : res.status(result.code).json(result.message);
 }

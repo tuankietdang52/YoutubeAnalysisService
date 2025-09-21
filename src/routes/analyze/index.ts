@@ -1,7 +1,7 @@
 import { Router } from "express"
-import { analyzing } from "../../controller/analyze-controller"
+import { analyzeYoutubeVideo } from "../../controller/analyze-controller"
 
 const analyzeRoute = Router();
-analyzeRoute.post("/", analyzing);
+analyzeRoute.post("/", analyzeYoutubeVideo);
 
 export default analyzeRoute;

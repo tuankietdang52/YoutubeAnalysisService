@@ -1,0 +1,10 @@
+{
+    "downloadTimedOut": 30000,
+    "screenshotPath": "C:\\Users\\ADMIN\\Downloads\\",
+    "audioPath": "C:\\Users\\ADMIN\\Downloads\\",
+    "audioDownloadOptions": {
+        "sampleRate": 16000, 
+        "channel": 1, 
+        "PCM": "s16"
+    }
+}

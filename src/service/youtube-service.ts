@@ -2,9 +2,12 @@ import puppeteer, { Page } from "puppeteer"
 import Result from "../utils/result";
 import { delay, runWithTimeOut } from "../utils/time-utils";
 import ytdl from "@distube/ytdl-core";
-import { getConvertAudioStream } from "./ffmpeg-service";
+import { FFMPEGOption, getConvertAudioStream } from "./ffmpeg-service";
 import { ChildProcess } from "child_process";
 import { existsSync } from "fs";
+import { sanitizeFileName } from "../utils/string-utils";
+import { appConfigure } from "../config";
+import HttpStatus from "../utils/response-code";
 
 const skipOrWaitAds = async (curPage: Page) => {
     // trying to click skip ad but not working, this function is only waiting for ads
@@ -41,7 +44,7 @@ const skipOrWaitAds = async (curPage: Page) => {
 export const verifyYoutubeVideoPlayback = async (curPage: Page): Promise<Result<null>> => {
     // checking if something wrong and cant find the main video
     let isHaveVideo = await curPage.$('.video-stream');
-    if (!isHaveVideo) return Result.fail({ message: "Verify failed", code: 500 });
+    if (!isHaveVideo) return Result.fail({ message: "Verify failed", code: HttpStatus.InternalServerError });
 
     await skipOrWaitAds(curPage);
     await curPage.$eval('.video-stream', el => {
@@ -49,7 +52,7 @@ export const verifyYoutubeVideoPlayback = async (curPage: Page): Promise<Result<
         if (video.paused) video.play();
     });
 
-    return Result.success({ message: "Verify Successful", code: 200 });
+    return Result.success({ message: "Verify Successful", code: HttpStatus.OK });
 }
 
 const openning = async (url: string, page: Page) => {
@@ -68,12 +71,12 @@ export const openYoutubeVideo = async (url: string) => {
     const pages = await browser.pages();
     const page = pages[0];
 
-    if (page == null) return Result.fail({ message: "Something wrong", code: 500 });
+    if (page == null) return Result.fail({ message: "Something wrong", code: HttpStatus.InternalServerError });
 
     let openResult = await openning(url, page);
-    if (!openResult) return Result.fail({ message: "Cant open Youtube Video", code: 500 });
+    if (!openResult) return Result.fail({ message: "Cant open Youtube Video", code: HttpStatus.InternalServerError });
 
-    return Result.success({ message: `Open ${url} success`, result: browser, code: 200 });
+    return Result.success({ message: `Open ${url} success`, result: browser, code: HttpStatus.OK });
 }
 
 const checkFileExist = async (path: string): Promise<string> => {
@@ -89,41 +92,44 @@ const checkFileExist = async (path: string): Promise<string> => {
     return "Download Successfully";
 }
 
-const getUniquePath = (): string => {
-    let name = "audio.wav";
+const getUniquePath = (name: string): string => {
     let num = 1;
-    let folderPath = process.env.AUDIO_PATH as string;
-    let path = `${folderPath}${name}`;
+    let newName = name;
+    let folderPath = appConfigure.audioPath;
+    let path = `${folderPath}${name}.wav`;
 
     while (existsSync(path)) {
-        name = `audio(${num}).wav`;
-        path = `${folderPath}${name}`;
+        newName = `${name}(${num}).wav`;
+        path = `${folderPath}${newName}`;
         num++;
     }
 
     return path;
 }
 
-export const downloadAudio = async (url: string) => {
-    if (!ytdl.validateURL(url)) return Result.fail({ message: "URL is not valid", code: 200 });
+export const downloadAudio = async (url: string, name: string) => {
+    if (!ytdl.validateURL(url)) return Result.fail({ message: "URL is not valid", code: HttpStatus.Accepted });
 
-    const path = getUniquePath();
-    const result = getConvertAudioStream(path, { sampleRate: 16000, channel: 1, PCM: "s16" });
+    let nameAfterSanitize = sanitizeFileName(name, '_');
+    const path = getUniquePath(nameAfterSanitize);
+
+    let options: FFMPEGOption = appConfigure.audioDownloadOptions;
+    const result = getConvertAudioStream(path, options);
     
-    if (!result.success()) return Result.fail({ message: "Cant get FFMPEG Stream", code: 500 });
+    if (!result.success()) return Result.fail({ message: "Cant get FFMPEG Stream", code: HttpStatus.InternalServerError });
 
     let ffmpegProcess = result.result as ChildProcess;
     try {
         ytdl(url, { quality: 'highestaudio' }).pipe(ffmpegProcess.stdin!);
     }
     catch {
-        return Result.fail({ message: "Error when download", code: 500 });
+        return Result.fail({ message: "Error when download", code: HttpStatus.InternalServerError });
     }
 
     let success = false;
-    await runWithTimeOut(checkFileExist, 30000, [path]).then(() => success = true)
+    await runWithTimeOut(checkFileExist, appConfigure.downloadTimedOut, [path]).then(() => success = true)
                                                        .catch(() => success = false);
 
-    return success ? Result.success({ message: "Download successful", result: path, code: 200 })
-                    : Result.fail({ message: "Download timed out", code: 500 });
+    return success ? Result.success({ message: `Download successful. File save at ${path}`, result: path, code: HttpStatus.OK })
+                    : Result.fail({ message: "Download timed out", code: HttpStatus.InternalServerError });
 }

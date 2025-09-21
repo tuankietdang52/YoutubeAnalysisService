@@ -1,6 +1,7 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { readFileSync } from "fs";
 import Result from "../utils/result";
+import HttpStatus from "../utils/response-code";
 
 const client = new ElevenLabsClient();
 
@@ -11,10 +12,10 @@ export const transcriptAudio = async (audioPath: string) => {
         file: audioFile,
         modelId: "scribe_v1"});
 
-        return Result.success({ result: transcription, code: 200, message: "Get Transcript Successfully" });
+        return Result.success({ result: transcription, code: HttpStatus.OK, message: "Get Transcript Successfully" });
     }
     catch (e) {
         let message = e instanceof Error ? e.message : "Error when transcript";
-        return Result.fail({ message: message, code: 500 });
+        return Result.fail({ message: message, code: HttpStatus.BadRequest });
     }
 }

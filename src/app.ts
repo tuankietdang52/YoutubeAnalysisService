@@ -5,6 +5,9 @@ import ex from "express"
 import connectDatabase from "./connection/database-connection";
 import routes from "./routes/index";
 import cloudinary from "cloudinary"
+import * as config from "./config"
+
+config.configure();
 
 const app = ex();
 app.use(ex.json());
@@ -21,3 +24,5 @@ connectDatabase();
 app.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}`)
 });
+
+export default app;

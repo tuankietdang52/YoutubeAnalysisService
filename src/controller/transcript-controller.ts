@@ -1,9 +1,15 @@
 import { Request, Response } from "express";
-import { TranscriptModel } from "../model/transcription"
+import transcriptService from "../service/transcript-service";
+import HttpStatus from "../utils/response-code";
 
 export const getResult = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const transcript = await TranscriptModel.findById(id);
+    try {
+        const { id } = req.params;
+        const transcript = await transcriptService.findById(id);
     
-    return res.status(200).json(transcript);
+        return transcript ? res.status(HttpStatus.OK).json(transcript) : res.status(HttpStatus.OK).send(`No record match id: ${id}`);
+    }
+    catch {
+        return res.status(HttpStatus.BadRequest).send("Id is not valid");
+    }
 }

@@ -1,10 +1,11 @@
 import ffmpegPath from "ffmpeg-static";
 import { ChildProcess, exec, spawn } from "child_process";
 import Result from "../utils/result";
+import HttpStatus from "../utils/response-code";
 
 type TimeFormat = `${number}:${number}:${number}`;
 
-interface FFMPEGOption {
+export interface FFMPEGOption {
     videoFilter?: string;
     videoCodec?: string;
     audioFilter?: string;
@@ -44,10 +45,10 @@ export const convertAudioTo = (inputPath: string, outputPath: string, option: FF
     
     exec(`${ffmpegPath} -i ${inputPath} ${optionString} ${outputPath}`, (err, stdout, sterr) => {
         if (err) {
-            return Result.fail({ message: err.message, code: 500 });
+            return Result.fail({ message: err.message, code: HttpStatus.InternalServerError });
         }
 
-        return Result.success({ message: "Conversion Success", code: 200 });
+        return Result.success({ message: "Conversion Success", code: HttpStatus.OK });
     })
 }
 
@@ -57,7 +58,7 @@ export const getConvertAudioStream = (outputPath: string, option: FFMPEGOption |
     
     let stream = exec(command, (err, stdout, sterr) => {
         if (err) {
-            return Result.fail({ message: err.message, code: 500 });
+            return Result.fail({ message: err.message, code: HttpStatus.InternalServerError });
         }
     })
 

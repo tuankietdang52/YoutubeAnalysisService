@@ -1,5 +1,15 @@
 import mongoose, { Schema } from "mongoose";
-import { transcriptWordSchema } from "./transcriptionWord";
+import { TranscriptWord, transcriptWordSchema } from "./transcriptionWord";
+
+export interface Transcript {
+    language_code: string,
+    language_probability: number,
+    text: String,
+    words: [TranscriptWord],
+    transcriptionId: string,
+    ai_probability: number,
+    screenshot: string
+}
 
 export const transcriptSchema = new Schema({
     language_code: String,
@@ -7,6 +17,7 @@ export const transcriptSchema = new Schema({
     text: String,
     words: [transcriptWordSchema],
     transcriptionId: { type: String, required: true },
+    ai_probability: Number,
     screenshot: String
 });
 
