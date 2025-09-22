@@ -40,7 +40,8 @@ locate the file and fix the error line to (remember to import HttpResponsePromis
 * Then, create .env file in root folder with these variable
 
   ```
-  PORT=YOUR_DATABASE_PORT
+  HOST=YOUR_HOST
+  PORT=YOUR_PORT
   DATABASE_URI=YOUR_DATABASE_URI
   DATABASE_USERNAME=YOUR_DATABASE_USERNAME
   DATABASE_PASSWORD=YOUR_DATABASE_PASSWORD

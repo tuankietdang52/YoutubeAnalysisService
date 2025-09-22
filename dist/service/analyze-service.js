@@ -30,7 +30,12 @@ const openYoutubeTask = (url) => __awaiter(void 0, void 0, void 0, function* () 
     return yield (0, youtube_service_1.openYoutubeVideo)(url);
 });
 const verifyYoutubeVideoPlaybackTask = (curPage) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield (0, youtube_service_1.verifyYoutubeVideoPlayback)(curPage);
+    try {
+        return yield (0, youtube_service_1.verifyYoutubeVideoPlayback)(curPage);
+    }
+    catch (_a) {
+        return result_1.default.fail({ message: "Verify failed", code: response_code_1.default.InternalServerError });
+    }
 });
 const screenshotTask = (curPage, title) => __awaiter(void 0, void 0, void 0, function* () {
     title = (0, string_utils_1.sanitizeFileName)(title, '_');

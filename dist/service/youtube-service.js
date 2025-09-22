@@ -50,9 +50,7 @@ const skipOrWaitAds = (curPage) => __awaiter(void 0, void 0, void 0, function* (
 });
 const verifyYoutubeVideoPlayback = (curPage) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if something wrong and cant find the main video
-    let isHaveVideo = yield curPage.$('.video-stream');
-    if (!isHaveVideo)
-        return result_1.default.fail({ message: "Verify failed", code: response_code_1.default.InternalServerError });
+    yield curPage.waitForSelector('.video-stream', { timeout: 10000 });
     yield skipOrWaitAds(curPage);
     yield curPage.$eval('.video-stream', el => {
         const video = el;
@@ -77,7 +75,6 @@ const openYoutubeVideo = (url) => __awaiter(void 0, void 0, void 0, function* ()
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--use-gl=egl",
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
         ]
     });
     const pages = yield browser.pages();

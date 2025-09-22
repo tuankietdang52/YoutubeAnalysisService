@@ -21,7 +21,10 @@ cloudinary.v2.config({
 
 connectDatabase();
 
-app.listen(process.env.PORT, () => {
+const port = parseInt(process.env.PORT as string) || 3000;
+const host = process.env.HOST as string;
+
+app.listen(port, host, () => {
     console.log(`Listening on port ${process.env.PORT}`)
 });
 

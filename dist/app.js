@@ -53,7 +53,9 @@ cloudinary_1.default.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 (0, database_connection_1.default)();
-app.listen(process.env.PORT, () => {
+const port = parseInt(process.env.PORT) || 3000;
+const host = process.env.HOST;
+app.listen(port, host, () => {
     console.log(`Listening on port ${process.env.PORT}`);
 });
 exports.default = app;
