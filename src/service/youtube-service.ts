@@ -43,8 +43,7 @@ const skipOrWaitAds = async (curPage: Page) => {
 
 export const verifyYoutubeVideoPlayback = async (curPage: Page): Promise<Result<null>> => {
     // checking if something wrong and cant find the main video
-    let isHaveVideo = await curPage.$('.video-stream');
-    if (!isHaveVideo) return Result.fail({ message: "Verify failed", code: HttpStatus.InternalServerError });
+    await curPage.waitForSelector('.video-stream', { timeout: 10000 });
 
     await skipOrWaitAds(curPage);
     await curPage.$eval('.video-stream', el => {

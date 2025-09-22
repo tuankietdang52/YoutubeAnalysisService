@@ -19,7 +19,12 @@ const openYoutubeTask = async (url: string) => {
 }
 
 const verifyYoutubeVideoPlaybackTask = async (curPage: Page) => {
-    return await verifyYoutubeVideoPlayback(curPage);
+    try {
+        return await verifyYoutubeVideoPlayback(curPage);
+    }
+    catch {
+        return Result.fail( { message: "Verify failed", code: HttpStatus.InternalServerError} );
+    }
 }
 
 const screenshotTask = async (curPage: Page, title: string) => {
