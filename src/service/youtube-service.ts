@@ -67,7 +67,14 @@ const openning = async (url: string, page: Page) => {
 }
 
 export const openYoutubeVideo = async (url: string) => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ 
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--use-gl=egl",
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+        ]
+    });
     const pages = await browser.pages();
     const page = pages[0];
 

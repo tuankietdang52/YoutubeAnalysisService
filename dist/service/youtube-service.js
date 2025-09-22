@@ -72,7 +72,14 @@ const openning = (url, page) => __awaiter(void 0, void 0, void 0, function* () {
     return isOpenSuccess;
 });
 const openYoutubeVideo = (url) => __awaiter(void 0, void 0, void 0, function* () {
-    const browser = yield puppeteer_1.default.launch();
+    const browser = yield puppeteer_1.default.launch({
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--use-gl=egl",
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+        ]
+    });
     const pages = yield browser.pages();
     const page = pages[0];
     if (page == null)
