@@ -58,6 +58,7 @@ export const analyzing = async (url: string) => {
     let browser = openResult.result as Browser;
     let pages = await browser.pages();
     let page = pages[0];
+    await page.setViewport({width: 1920, height: 1060}); 
 
     let title = await page.title();
 
