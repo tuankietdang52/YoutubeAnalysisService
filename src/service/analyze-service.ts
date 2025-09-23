@@ -63,7 +63,10 @@ export const analyzing = async (url: string) => {
     let title = await page.title();
 
     const verifyResult = await verifyYoutubeVideoPlaybackTask(page);
-    if (!verifyResult.success()) return Result.fail({ code: HttpStatus.InternalServerError, message: `${verifyResult.message}. Error: \n ${page.content()}` });
+    if (!verifyResult.success()) {
+        let content = await page.content();
+        return Result.fail({ code: HttpStatus.InternalServerError, message: `${verifyResult.message}. Error: \n ${content}` });
+    }
     console.log(verifyResult.message);
 
     const screenshotResult = await screenshotTask(page, title);
