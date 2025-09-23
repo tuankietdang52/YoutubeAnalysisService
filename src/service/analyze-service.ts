@@ -22,8 +22,8 @@ const verifyYoutubeVideoPlaybackTask = async (curPage: Page) => {
     try {
         return await verifyYoutubeVideoPlayback(curPage);
     }
-    catch {
-        return Result.fail( { message: "Verify failed", code: HttpStatus.InternalServerError} );
+    catch (e) {
+        return Result.fail( { message: `Verify failed. Error: ${e}`, code: HttpStatus.InternalServerError} );
     }
 }
 

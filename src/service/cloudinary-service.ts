@@ -7,7 +7,7 @@ export const uploadImage = async (imagePath: string) => {
         const response = await cloudinary.v2.uploader.upload(imagePath);
         return Result.success({ message: "Upload successfully", result: response.secure_url, code: HttpStatus.OK })
     }
-    catch {
-        return Result.fail({ message: "Upload failed", code: HttpStatus.InternalServerError });
+    catch (e) {
+        return Result.fail({ message: `Upload failed. Error: ${e}`, code: HttpStatus.InternalServerError });
     }
 }

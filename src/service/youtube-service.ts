@@ -90,8 +90,8 @@ const checkFileExist = async (path: string): Promise<string> => {
             await delay(300);
         }
     }
-    catch {
-        return "Download Failed";
+    catch (e) {
+        return `Download Failed. Error: ${e}`;
     }
 
     return "Download Successfully";
@@ -139,8 +139,8 @@ export const downloadAudio = async (url: string, name: string) => {
           console.error('FFMPEG Stdin error:', err);
         });
     }
-    catch {
-        return Result.fail({ message: "Error when download", code: HttpStatus.InternalServerError });
+    catch (e) {
+        return Result.fail({ message: `Error when download: {e}`, code: HttpStatus.InternalServerError });
     }
 
     let success = false;
