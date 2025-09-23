@@ -1,10 +1,21 @@
 services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
   youtube-analysis-service:
     build: .
     ports:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      - DATABASE_URI=${DATABASE_PRODUCTION_URI}
+      - FFMPEG_PATH=ffmpeg
+      - AUDIO_PATH=/usr/
     volumes:
       - .:/app
     restart: unless-stopped
+    depends_on:
+      - db

@@ -101,7 +101,7 @@ const checkFileExist = (path) => __awaiter(void 0, void 0, void 0, function* () 
 const getUniquePath = (name) => {
     let num = 1;
     let newName = name;
-    let folderPath = config_1.appConfigure.audioPath;
+    let folderPath = process.env.AUDIO_PATH;
     let path = `${folderPath}${name}.wav`;
     while ((0, fs_1.existsSync)(path)) {
         newName = `${name}(${num}).wav`;
@@ -118,10 +118,19 @@ const downloadAudio = (url, name) => __awaiter(void 0, void 0, void 0, function*
     let options = config_1.appConfigure.audioDownloadOptions;
     const result = (0, ffmpeg_service_1.getConvertAudioStream)(path, options);
     if (!result.success())
-        return result_1.default.fail({ message: "Cant get FFMPEG Stream", code: response_code_1.default.InternalServerError });
+        return result;
     let ffmpegProcess = result.result;
     try {
-        (0, ytdl_core_1.default)(url, { quality: 'highestaudio' }).pipe(ffmpegProcess.stdin);
+        let stream = (0, ytdl_core_1.default)(url, { quality: 'highestaudio' }).on('info', (_, info) => console.log('Downloading audio... Info:', info))
+            .on('error', err => console.error('Error when try to download audio', err));
+        stream.pipe(ffmpegProcess.stdin).on('finish', () => console.log("Finish download"))
+            .on('error', (err) => console.log(`FFMPEG Error. ${err}`));
+        ffmpegProcess.on('close', code => {
+            console.log(`FFMPEG code: ${code}`);
+        });
+        ffmpegProcess.stdin.on('error', err => {
+            console.error('FFMPEG Stdin error:', err);
+        });
     }
     catch (_a) {
         return result_1.default.fail({ message: "Error when download", code: response_code_1.default.InternalServerError });

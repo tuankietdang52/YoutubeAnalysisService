@@ -28,8 +28,8 @@ const verifyYoutubeVideoPlaybackTask = async (curPage: Page) => {
 }
 
 const screenshotTask = async (curPage: Page, title: string) => {
-    title = sanitizeFileName(title, '_');
-    const path = `${appConfigure.screenshotPath}${title}Screenshot`;
+    let newTitle = sanitizeFileName(title, '_');
+    const path = `${process.env.SCREENSHOT_PATH}${newTitle}_Screenshot`;
 
     await delay(1000);
     await curPage.screenshot({
@@ -91,5 +91,6 @@ export const analyzing = async (url: string) => {
 
     const saveResult = await saveTranscript(transcript, screenshotResult.result as string, detectAIResult.result as number);
     browser.close();
+
     return saveResult;
 }

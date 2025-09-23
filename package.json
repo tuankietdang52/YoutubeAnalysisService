@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
+    "preinstall": "npx puppeteer browsers install chrome",
     "prestart": "npm run build",
     "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
-    "postinstall": "patch-package && npx puppeteer browsers install chrome",
     "build": "tsc"
   },
   "keywords": [],
@@ -20,11 +20,8 @@
     "cloudinary": "^2.7.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "ffmpeg-static": "^5.2.0",
     "form-data": "^4.0.4",
     "mongoose": "^8.18.1",
-    "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "puppeteer": "^24.22.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

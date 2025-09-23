@@ -7,6 +7,7 @@ export const analyzeYoutubeVideo = async (req: Request, res: Response) => {
     if (!req.body || !req.body.url) return res.status(HttpStatus.BadRequest).send("Missing URL");
     let result = await analyzing(req.body.url);
 
+    console.log(result.message);
     if (!result.success()) return sendMessageOnlyResult(result, res);
     return sendResult(result, res);
 }

@@ -3,8 +3,6 @@ import { FFMPEGOption } from "./service/ffmpeg-service";
 
 interface AppConfig {
     downloadTimedOut: number,
-    screenshotPath: string,
-    audioPath: string,
     audioDownloadOptions: FFMPEGOption
 }
 

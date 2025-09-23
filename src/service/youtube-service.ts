@@ -100,7 +100,7 @@ const checkFileExist = async (path: string): Promise<string> => {
 const getUniquePath = (name: string): string => {
     let num = 1;
     let newName = name;
-    let folderPath = appConfigure.audioPath;
+    let folderPath = process.env.AUDIO_PATH;
     let path = `${folderPath}${name}.wav`;
 
     while (existsSync(path)) {
@@ -121,11 +121,23 @@ export const downloadAudio = async (url: string, name: string) => {
     let options: FFMPEGOption = appConfigure.audioDownloadOptions;
     const result = getConvertAudioStream(path, options);
     
-    if (!result.success()) return Result.fail({ message: "Cant get FFMPEG Stream", code: HttpStatus.InternalServerError });
+    if (!result.success()) return result;
 
     let ffmpegProcess = result.result as ChildProcess;
     try {
-        ytdl(url, { quality: 'highestaudio' }).pipe(ffmpegProcess.stdin!);
+        let stream = ytdl(url, { quality: 'highestaudio' }).on('info', (_, info) => console.log('Downloading audio... Info:', info))
+                                                           .on('error', err => console.error('Error when try to download audio', err))
+
+        stream.pipe(ffmpegProcess.stdin!).on('finish', () => console.log("Finish download"))
+                                         .on('error', (err) => console.log(`FFMPEG Error. ${err}`))
+
+        ffmpegProcess.on('close', code => {
+            console.log(`FFMPEG code: ${code}`);
+        });
+
+        ffmpegProcess.stdin!.on('error', err => {
+          console.error('FFMPEG Stdin error:', err);
+        });
     }
     catch {
         return Result.fail({ message: "Error when download", code: HttpStatus.InternalServerError });

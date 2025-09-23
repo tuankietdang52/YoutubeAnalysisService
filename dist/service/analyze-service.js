@@ -21,7 +21,6 @@ const elevenlabs_service_1 = require("../service/elevenlabs-service");
 const cloudinary_service_1 = require("../service/cloudinary-service");
 const zerogtp_service_1 = require("../service/zerogtp-service");
 const string_utils_1 = require("../utils/string-utils");
-const config_1 = require("../config");
 const transcript_service_1 = __importDefault(require("./transcript-service"));
 const response_code_1 = __importDefault(require("../utils/response-code"));
 const openYoutubeTask = (url) => __awaiter(void 0, void 0, void 0, function* () {
@@ -38,8 +37,8 @@ const verifyYoutubeVideoPlaybackTask = (curPage) => __awaiter(void 0, void 0, vo
     }
 });
 const screenshotTask = (curPage, title) => __awaiter(void 0, void 0, void 0, function* () {
-    title = (0, string_utils_1.sanitizeFileName)(title, '_');
-    const path = `${config_1.appConfigure.screenshotPath}${title}Screenshot`;
+    let newTitle = (0, string_utils_1.sanitizeFileName)(title, '_');
+    const path = `${process.env.SCREENSHOT_PATH}${newTitle}_Screenshot`;
     yield (0, time_utils_1.delay)(1000);
     yield curPage.screenshot({
         path: `${path}.png`,

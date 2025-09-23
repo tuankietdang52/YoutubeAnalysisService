@@ -1,5 +1,4 @@
-import ffmpegPath from "ffmpeg-static";
-import { ChildProcess, exec, spawn } from "child_process";
+import { spawn } from "child_process";
 import Result from "../utils/result";
 import HttpStatus from "../utils/response-code";
 
@@ -20,47 +19,40 @@ export interface FFMPEGOption {
     PCM?: string;
 }
 
-const getOptions = (option: FFMPEGOption | null): string => {
-    if (!option) return "";
-    let optionString =  "";
+const getOptions = (option: FFMPEGOption | null): string[] => {
+    if (!option) return [];
+    let optionString: string[] =  [];
 
-    if (option.videoFilter) optionString += `-vf ${option.videoFilter }`
-    if (option.videoCodec) optionString += `-c:v ${option.videoCodec} `
-    if (option.audioFilter) optionString += `-af ${option.audioFilter} `
-    if (option.audioCodec) optionString += `-c:a ${option.audioCodec} `
-    if (option.duration) optionString += `-t ${option.duration} `
-    if (option.startTime) optionString += `-ss ${option.startTime} `
-    if (option.frameRate) optionString += `-r ${option.frameRate} `
-    if (option.videoBitrate) optionString += `-b:v ${option.videoBitrate} `
-    if (option.audioBitrate) optionString += `-b:c ${option.audioBitrate} `
-    if (option.sampleRate) optionString += `-ar ${option.sampleRate} `
-    if (option.channel) optionString += `-ac ${option.channel} `
-    if (option.PCM) optionString += `-sample_fmt ${option.PCM} `
+    if (option.videoFilter)   optionString.push("-vf", option.videoFilter);
+    if (option.videoCodec) optionString.push("-c:v", option.videoCodec);
+    if (option.audioFilter) optionString.push("-af", option.audioFilter);
+    if (option.audioCodec) optionString.push("-c:a", option.audioCodec);
+    if (option.duration) optionString.push("-t", option.duration);
+    if (option.startTime) optionString.push("-ss", option.startTime);
+    if (option.frameRate) optionString.push("-r", `${option.frameRate}`);
+    if (option.videoBitrate) optionString.push("-b:v", option.videoBitrate);
+    if (option.audioBitrate) optionString.push("-b:a", option.audioBitrate); // fixed from -b:c to -b:a
+    if (option.sampleRate) optionString.push("-ar", `${option.sampleRate}`);
+    if (option.channel) optionString.push("-ac", `${option.channel}`);
+    if (option.PCM) optionString.push("-sample_fmt", option.PCM);
 
     return optionString;
 }
 
-export const convertAudioTo = (inputPath: string, outputPath: string, option: FFMPEGOption | null) => {
+export const getConvertAudioStream = (outputPath: string, option: FFMPEGOption | null) => {
     let optionString = getOptions(option);
     
-    exec(`${ffmpegPath} -i ${inputPath} ${optionString} ${outputPath}`, (err, stdout, sterr) => {
-        if (err) {
-            return Result.fail({ message: err.message, code: HttpStatus.InternalServerError });
-        }
+    let ffmpegPath = process.env.FFMPEG_PATH as string;
+    const ffmpeg = spawn(ffmpegPath, [
+        '-i', 'pipe:0',
+        '-f', 'wav',
+        ...optionString,
+        outputPath,
+    ]);
 
-        return Result.success({ message: "Conversion Success", code: HttpStatus.OK });
-    })
-}
+    ffmpeg.stderr.on("data", data => {
+        return Result.fail({ message: `FFMPEG Command fail. Data: ${data}`, code: HttpStatus.InternalServerError });
+    });
 
-export const getConvertAudioStream = (outputPath: string, option: FFMPEGOption | null): Result<ChildProcess> | Result<null> => {
-    let optionString = getOptions(option);
-    let command = `"${ffmpegPath}" -i pipe:0 ${optionString} "${outputPath}"`;
-    
-    let stream = exec(command, (err, stdout, sterr) => {
-        if (err) {
-            return Result.fail({ message: err.message, code: HttpStatus.InternalServerError });
-        }
-    })
-
-    return Result.success({ message: "Success", result: stream });
+    return Result.success({ message: "Conversion Success", result: ffmpeg, code: HttpStatus.OK });
 }

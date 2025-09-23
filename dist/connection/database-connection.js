@@ -17,6 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 function connectDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            console.log(`Connecting to ${process.env.DATABASE_URI}`);
             mongoose_1.default.connect(process.env.DATABASE_URI, {
                 user: process.env.DATABASE_USERNAME,
                 pass: process.env.DATABASE_PASSWORD

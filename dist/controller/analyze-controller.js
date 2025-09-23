@@ -20,6 +20,7 @@ const analyzeYoutubeVideo = (req, res) => __awaiter(void 0, void 0, void 0, func
     if (!req.body || !req.body.url)
         return res.status(response_code_1.default.BadRequest).send("Missing URL");
     let result = yield (0, analyze_service_1.analyzing)(req.body.url);
+    console.log(result.message);
     if (!result.success())
         return (0, result_1.sendMessageOnlyResult)(result, res);
     return (0, result_1.sendResult)(result, res);
