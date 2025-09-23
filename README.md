@@ -62,3 +62,8 @@ Run
 > docker-compose-up
 
 and then run the container (warning: docker will use the DATABASE_PRODUCTION_URI instead of DATABASE_URI)
+
+<h2>API Link</h2>
+
+* Analyze Audio of Youtube Video: /api/analyze
+* Get Transcription with AI Detect Item: /api/result/:id
