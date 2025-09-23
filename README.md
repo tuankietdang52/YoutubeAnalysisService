@@ -19,6 +19,7 @@
 * Node JS v24.8.0 (latest)
 * MongoDB Server v8.2.0 (latest)
 * Chrome Browser
+* FFMPEG
 * Elevenlabs Api Key
 * ZeroGPT Api Key
 * Cloudinary Api Key and Secret Key
@@ -50,6 +51,10 @@ locate the file and fix the error line to (remember to import HttpResponsePromis
   CLOUDINARY_NAME=YOUR_CLOUDINARY_STORAGE_NAME
   CLOUDINARY_API_KEY=YOUR_CLOUDINARY_API_KEY
   CLOUDINARY_API_SECRET=YOUR_CLOUDINARY_API_SECRET
+  FFMPEG_PATH=YOUR_FFMPEG_PATH
+  SCREENSHOT_PATH=YOUR_SAVE_SCREENSHOT_PATH
+  AUDIO_PATH=YOUR_SAVE_AUDIO_PATH
+
   ```
 
 * Finally, run the project by using (make sure MongoDb server is running)
