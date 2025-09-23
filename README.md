@@ -66,4 +66,4 @@ and then run the container (warning: docker will use the DATABASE_PRODUCTION_URI
 <h2>API Link</h2>
 
 * Analyze Audio of Youtube Video: /api/analyze
-* Get Transcription with AI Detect Item: /api/result/:id
+* Get Transcription with AI Detect Item: /api/transcript/result/:id
