@@ -30,20 +30,13 @@
 
 > npm install
 
-if this error happen:
-
-``` node_modules/@elevenlabs/elevenlabs-js/wrapper/music.d.ts:32:5 - error TS2416: Property 'composeDetailed' in type 'Music' is not assignable to the same property in base type 'Music'. ```
-
-locate the file and fix the error line to (remember to import HttpResponsePromise)
-
-``` composeDetailed(request?: ElevenLabs.BodyComposeMusicWithADetailedResponseV1MusicDetailedPost, requestOptions?: Music.RequestOptions): HttpResponsePromise<ReadableStream<Uint8Array>>; ``` 
-
 * Then, create .env file in root folder with these variable
 
   ```
   HOST=YOUR_HOST
   PORT=YOUR_PORT
   DATABASE_URI=YOUR_DATABASE_URI
+  DATABASE_PRODUCTION_URI=YOUR_DATABASE_PRODUCTION_URI (ex: mongodb://db:27017/YoutubeAnalysisService)
   DATABASE_USERNAME=YOUR_DATABASE_USERNAME
   DATABASE_PASSWORD=YOUR_DATABASE_PASSWORD
   ELEVENLABS_API_KEY=YOUR_ELVENLABS_API_KEY
@@ -62,3 +55,10 @@ locate the file and fix the error line to (remember to import HttpResponsePromis
 
 <h2>Technology</h2>
 This project is writing in TypeScript with NodeJS instead of JavaScript cause of the safe typing, clean code with MongoDB for better scale and having no relation, flexibility and more. For screenshot and audio download, with Puppeteer take screenshot with easy headless browser setup and ytdl-core + ffmpeg to download the audio. I'm using ElevenLabs to transcript audio and ZeroGPT instead of GPTZero cause ZeroGPT provide a free plan and easy api approach. Cloudinary is the best API for saving image in the cloud for beginner, offer a free-tier and support image upload, fast delivery via CDN
+
+<h2>Docker</h2>
+Run
+
+> docker-compose-up
+
+and then run the container (warning: docker will use the DATABASE_PRODUCTION_URI instead of DATABASE_URI)
