@@ -1,4 +1,6 @@
 import puppeteer, { Page } from "puppeteer"
+import puppeteerExtra from "puppeteer-extra"
+import StealthMode from "puppeteer-extra-plugin-stealth"
 import Result from "../utils/result";
 import { delay, runWithTimeOut } from "../utils/time-utils";
 import ytdl from "@distube/ytdl-core";
@@ -8,6 +10,8 @@ import { existsSync } from "fs";
 import { sanitizeFileName } from "../utils/string-utils";
 import { appConfigure } from "../config";
 import HttpStatus from "../utils/response-code";
+
+puppeteerExtra.use(StealthMode());
 
 const skipOrWaitAds = async (curPage: Page) => {
     // trying to click skip ad but not working, this function is only waiting for ads
@@ -66,7 +70,7 @@ const openning = async (url: string, page: Page) => {
 }
 
 export const openYoutubeVideo = async (url: string) => {
-    const browser = await puppeteer.launch({ 
+    const browser = await puppeteerExtra.launch({ 
         args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",

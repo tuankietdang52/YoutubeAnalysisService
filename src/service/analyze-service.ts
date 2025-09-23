@@ -1,11 +1,11 @@
 import ytdl from "@distube/ytdl-core";
 import { downloadAudio, openYoutubeVideo, verifyYoutubeVideoPlayback } from "../service/youtube-service";
 import { delay } from "../utils/time-utils";
+import puppeteerExtra from "puppeteer-extra";
 import { Browser, Page } from "puppeteer";
 import Result from "../utils/result";
 import { transcriptAudio } from "../service/elevenlabs-service";
 import { SpeechToTextConvertResponse } from "@elevenlabs/elevenlabs-js/api";
-import { Transcript, TranscriptModel } from "../model/transcription";
 import { uploadImage } from "../service/cloudinary-service";
 import { detectAI } from "../service/zerogtp-service";
 import { sanitizeFileName } from "../utils/string-utils";
