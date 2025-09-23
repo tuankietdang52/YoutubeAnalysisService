@@ -1,5 +1,6 @@
 {
     "downloadTimedOut": 100000,
+    "verifyTimedOut": 100000,
     "audioDownloadOptions": {
         "sampleRate": 16000, 
         "channel": 1, 

@@ -3,6 +3,7 @@ import { FFMPEGOption } from "./service/ffmpeg-service";
 
 interface AppConfig {
     downloadTimedOut: number,
+    verifyTimedOut: number,
     audioDownloadOptions: FFMPEGOption
 }
 

@@ -43,7 +43,7 @@ const skipOrWaitAds = async (curPage: Page) => {
 
 export const verifyYoutubeVideoPlayback = async (curPage: Page): Promise<Result<null>> => {
     // checking if something wrong and cant find the main video
-    await curPage.waitForSelector('.video-stream', { timeout: 10000 });
+    await curPage.waitForSelector('.video-stream', { timeout: appConfigure.verifyTimedOut });
 
     await skipOrWaitAds(curPage);
     await curPage.$eval('.video-stream', el => {
